@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Music, MusicOff } from "lucide-react";
 
 const POMODORO_TIME = 25 * 60; // 25 minutes
 const SHORT_BREAK_TIME = 5 * 60; // 5 minutes
@@ -16,12 +15,20 @@ const Index = () => {
   const [sessionType, setSessionType] = useState<SessionType>('focus');
   const [completedSessions, setCompletedSessions] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [musicPlaying, setMusicPlaying] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Create audio context for notification sound
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+D0x2giBiyF0fPTgjMGHm7A7+OZURE');
+    
+    // Create audio element for background music
+    // Replace this URL with your uploaded MP3 file path
+    musicRef.current = new Audio('/path-to-your-underwater-sound.mp3');
+    musicRef.current.loop = true;
+    musicRef.current.volume = 0.3; // Set lower volume for background music
   }, []);
 
   useEffect(() => {
@@ -83,6 +90,18 @@ const Index = () => {
     setCompletedSessions(0);
   };
 
+  const toggleMusic = () => {
+    if (musicRef.current) {
+      if (musicPlaying) {
+        musicRef.current.pause();
+        setMusicPlaying(false);
+      } else {
+        musicRef.current.play().catch(() => {});
+        setMusicPlaying(true);
+      }
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -118,6 +137,18 @@ const Index = () => {
     >
       {/* Dark overlay for better readability */}
       <div className="absolute inset-0 bg-black/40"></div>
+      
+      {/* Music control in top right corner */}
+      <div className="absolute top-4 right-4 z-20">
+        <Button
+          onClick={toggleMusic}
+          size="lg"
+          variant="outline"
+          className="border-blue-500 text-blue-300 hover:bg-blue-500/20 rounded-full w-14 h-14"
+        >
+          {musicPlaying ? <Music className="w-6 h-6" /> : <MusicOff className="w-6 h-6" />}
+        </Button>
+      </div>
       
       <Card className="w-full max-w-md bg-slate-800/80 border-blue-500/20 backdrop-blur-sm relative z-10">
         <CardContent className="p-8 text-center">
